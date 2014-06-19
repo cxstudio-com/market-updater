@@ -25,7 +25,7 @@ public class App {
 	static Logger log = Logger.getLogger(App.class.getName());
 
 	public static void main(String[] args) throws Exception {
-		updateSymbol(1553);
+		updateSymbol(3117);
 
 		// List<Trade> trades = getFileData(1553,
 		// "D:\\MyData\\GoogleDrive\\Project\\GBPUSD1d.txt");

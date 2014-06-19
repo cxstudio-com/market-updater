@@ -69,11 +69,13 @@ public class UpdateStockPrices implements Runnable {
 						if (System.currentTimeMillis() - symbol.getLastUpdate().getTime() > ALMOST_A_DAY) {
 							// last update is more than a day, then update
 							List<Trade> trades = dataProvider.retreive(symbol, filter);
-							tradeDao.insertTrades(trades);
-							symbol.setLastUpdate(new Date());
-							symbolDao.setUpdateDate(symbol);
-							updateResult.numOfStocksUpdated++;
-							updateResult.numOfTradesUpdated += trades.size();
+							if (trades != null && trades.size() > 0) {
+								tradeDao.insertTrades(trades);
+								symbol.setLastUpdate(new Date());
+								symbolDao.setUpdateDate(symbol);
+								updateResult.numOfStocksUpdated++;
+								updateResult.numOfTradesUpdated += trades.size();
+							}
 							log.info(trades.size() + " num of trades retreived for: " + symbol.getTicker());
 						} else { // last update is less than a day, skip
 							log.info("Skipping " + symbol.getTicker() + ". Last updated: " + symbol.getLastUpdate());
