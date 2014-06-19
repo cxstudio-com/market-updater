@@ -31,7 +31,7 @@ public class GoogleFinanceDataRetreiver implements DataProvider {
 	}
 
 	@Override
-	public List<Trade> retreive(Symbol symbol, DataFilter dataFilter) throws IllegalArgumentException {
+	public List<Trade> retreive(Symbol symbol, DataFilter dataFilter) {
 		List<Trade> trades = new ArrayList<Trade>();
 		log.trace("Retreiving data for : " + symbol.getTicker());
 		URI uri = buildUri(symbol, dataFilter);
@@ -45,25 +45,29 @@ public class GoogleFinanceDataRetreiver implements DataProvider {
 				log.trace("Parsing response for: " + symbol.getTicker());
 				InputStream in = entity.getContent();
 				try {
-					LineNumberReader lineReader = new LineNumberReader(new InputStreamReader(in));
+					LineNumberReader lineReader = new LineNumberReader(
+							new InputStreamReader(in));
 					String line = null;
 					LineDataParser parser = new GoogleFinanceDataParser(symbol);
-					for (line = lineReader.readLine(); line != null; line = lineReader.readLine()) {
+					for (line = lineReader.readLine(); line != null; line = lineReader
+							.readLine()) {
 						Trade trade = parser.parse(line);
 						if (trade != null) {
 							trades.add(trade);
-							// log.debug(">>>>>>>>>>>>>>>>>>>>>>>>>>Adding trade: "
-							// + trade.toString());
 						}
 					}
+				} catch (IllegalArgumentException ex) {
+					log.warn("Failed to parse response data.", ex);
 				} finally {
 					in.close();
 				}
 			}
 		} catch (ClientProtocolException e) {
-			log.warn("Protocol error while retreiving " + symbol.getTicker() + " from Google.");
+			log.warn("Protocol error while retreiving " + symbol.getTicker()
+					+ " from Google.");
 		} catch (IOException e) {
-			log.warn("IO error while retreiving " + symbol.getTicker() + " from Google.");
+			log.warn("IO error while retreiving " + symbol.getTicker()
+					+ " from Google.");
 		} finally {
 			try {
 				response.close();
@@ -80,17 +84,19 @@ public class GoogleFinanceDataRetreiver implements DataProvider {
 
 	}
 
-	private URI buildUri(Symbol symbol, DataFilter filter) throws IllegalArgumentException {
+	private URI buildUri(Symbol symbol, DataFilter filter)
+			throws IllegalArgumentException {
 		URI uri = null;
 		try {
 			URIBuilder builder = new URIBuilder();
-			builder.setScheme("http").setHost("www.google.com").setPath("/finance/getprices");
+			builder.setScheme("http").setHost("www.google.com")
+					.setPath("/finance/getprices");
 			builder.setParameter("q", symbol.getTicker());
 			builder.setParameter("x", fixExchangeCode(symbol.getExchange()));
-			int startTime = (int) (filter.getStartTime() != null ? filter.getStartTime().getTime() : System
-					.currentTimeMillis()) / 1000;
-			int endTime = (int) (filter.getEndTime() != null ? filter.getEndTime().getTime() : System
-					.currentTimeMillis()) / 1000;
+			int startTime = (int) (filter.getStartTime() != null ? filter
+					.getStartTime().getTime() : System.currentTimeMillis()) / 1000;
+			int endTime = (int) (filter.getEndTime() != null ? filter
+					.getEndTime().getTime() : System.currentTimeMillis()) / 1000;
 			endTime = endTime / 1000;
 			int interval = filter.getInterval() > 0 ? filter.getInterval() : 60;
 			int periods = (endTime - startTime) / interval;
@@ -103,7 +109,8 @@ public class GoogleFinanceDataRetreiver implements DataProvider {
 			uri = builder.build();
 			log.debug("Built Google API URI: " + uri.toString());
 		} catch (URISyntaxException e) {
-			throw new IllegalArgumentException("Unable to create request: illegal arguments.");
+			throw new IllegalArgumentException(
+					"Unable to create request: illegal arguments.");
 		}
 		return uri;
 	}

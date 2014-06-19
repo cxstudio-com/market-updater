@@ -31,4 +31,9 @@ public class TradeDao extends AbstractDao {
 		if (trades != null && trades.size() > 0)
 			mapper.insertTrades(trades);
 	}
+
+	public void insertTempTrades(List<Trade> trades) throws Exception {
+		if (trades != null && trades.size() > 0)
+			mapper.insertTempTrades(trades);
+	}
 }

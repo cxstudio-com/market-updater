@@ -45,4 +45,32 @@
       )
     </foreach>
   </insert>
+  
+  <insert id="insertTempTrades">
+  	 INSERT INTO trade_test (symbol_id,
+						open,
+						close,
+						high,
+						low,
+						percent_change,
+						bid,
+						ask,
+						volume,
+						datetime
+      ) VALUES
+    <foreach collection="trades" item="trade" separator=","> 
+      (           
+         #{trade.symbol.symbolId},
+		 #{trade.open},
+		 #{trade.close},
+		 #{trade.high},
+		 #{trade.low},
+		 #{trade.percentChange},
+		 #{trade.bid},
+		 #{trade.ask},
+		 #{trade.volume},
+		 #{trade.dateTime}
+      )
+    </foreach>
+  </insert>
 </mapper>

@@ -27,7 +27,8 @@ public class UpdateStockPrices implements Runnable {
 		TradeDao tradeDao = new TradeDao();
 		DataProvider dataProvider = new GoogleFinanceDataRetreiver();
 
-		UpdateStockPrices updateStockPrices = new UpdateStockPrices(symbolDao, tradeDao, dataProvider);
+		UpdateStockPrices updateStockPrices = new UpdateStockPrices(symbolDao,
+				tradeDao, dataProvider);
 
 		log.info("Stock update started.");
 		// could be run in multi-thread if need to
@@ -38,7 +39,8 @@ public class UpdateStockPrices implements Runnable {
 
 	}
 
-	public UpdateStockPrices(SymbolDao symbolDao, TradeDao tradeDao, DataProvider dataProvider) {
+	public UpdateStockPrices(SymbolDao symbolDao, TradeDao tradeDao,
+			DataProvider dataProvider) {
 		this.symbolDao = symbolDao;
 		this.tradeDao = tradeDao;
 		this.dataProvider = dataProvider;
@@ -63,23 +65,37 @@ public class UpdateStockPrices implements Runnable {
 				filter.setInterval(30);
 				int counter = 1;
 				for (Symbol symbol : symbolsToUpdate) {
-					log.info("Updating # " + (counter++) + " of " + symbolsToUpdate.size() + ": " + symbol.getTicker());
-					if (System.currentTimeMillis() - symbol.getLastUpdate().getTime() > ALMOST_A_DAY) {
-						// last update is more than a day, then update
-						List<Trade> trades = dataProvider.retreive(symbol, filter);
-						tradeDao.insertTrades(trades);
-						symbol.setLastUpdate(new Date());
-						symbolDao.setUpdateDate(symbol);
-						updateResult.numOfStocksUpdated++;
-						updateResult.numOfTradesUpdated += trades.size();
-						log.info(trades.size() + " num of trades retreived for: " + symbol.getTicker());
-					} else { // last update is less than a day, skip
-						log.info("Skipping " + symbol.getTicker() + ". Last updated: " + symbol.getLastUpdate());
+					try {
+						log.info("Updating # " + (counter++) + " of "
+								+ symbolsToUpdate.size() + ": "
+								+ symbol.getTicker());
+						if (System.currentTimeMillis()
+								- symbol.getLastUpdate().getTime() > ALMOST_A_DAY) {
+							// last update is more than a day, then update
+							List<Trade> trades = dataProvider.retreive(symbol,
+									filter);
+							tradeDao.insertTrades(trades);
+							symbol.setLastUpdate(new Date());
+							symbolDao.setUpdateDate(symbol);
+							updateResult.numOfStocksUpdated++;
+							updateResult.numOfTradesUpdated += trades.size();
+							log.info(trades.size()
+									+ " num of trades retreived for: "
+									+ symbol.getTicker());
+						} else { // last update is less than a day, skip
+							log.info("Skipping " + symbol.getTicker()
+									+ ". Last updated: "
+									+ symbol.getLastUpdate());
+						}
+					} catch (Exception e) {
+						log.error("Problem inserting trades for "
+								+ symbol.getTicker() + " into DB.");
+						updateResult.exception = e;
+						updateResult.successful = false;
 					}
 				}
 				dataProvider.disconnect();
 			}
-
 		} catch (Exception e) {
 			updateResult.exception = e;
 			updateResult.successful = false;
@@ -89,7 +105,6 @@ public class UpdateStockPrices implements Runnable {
 			tradeDao.disconnect();
 		}
 		updateResult.endTime = System.currentTimeMillis();
-		updateResult.successful = true;
 	}
 
 	public UpdateResult getUpdateResult() {
@@ -102,7 +117,7 @@ public class UpdateStockPrices implements Runnable {
 		int numOfStocksToUpdate;
 		int numOfStocksUpdated;
 		long numOfTradesUpdated;
-		boolean successful;
+		boolean successful = true;
 		Exception exception;
 
 		long getDuration() {
@@ -111,9 +126,12 @@ public class UpdateStockPrices implements Runnable {
 
 		@Override
 		public String toString() {
-			return "UpdateResult [startTime=" + new Date(startTime) + ", endTime=" + new Date(endTime) + ", duration="
-					+ getDuration() / 1000 + ", numOfStocksToUpdate=" + numOfStocksToUpdate + ", numOfStocksUpdated="
-					+ numOfStocksUpdated + ", numOfTradesUpdated=" + numOfTradesUpdated + ", successful=" + successful
+			return "UpdateResult [startTime=" + new Date(startTime)
+					+ ", endTime=" + new Date(endTime) + ", duration="
+					+ getDuration() / 1000 + ", numOfStocksToUpdate="
+					+ numOfStocksToUpdate + ", numOfStocksUpdated="
+					+ numOfStocksUpdated + ", numOfTradesUpdated="
+					+ numOfTradesUpdated + ", successful=" + successful
 					+ ", exception=" + exception + "]";
 		}
 

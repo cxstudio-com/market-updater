@@ -30,12 +30,12 @@ public class App {
 		symbolDao.connect();
 		tradeDao.connect();
 
-		Symbol symbol = symbolDao.getSymbol(4788); // AAPL
+		Symbol symbol = symbolDao.getSymbol(1553); // EXK
 
 		List<Trade> trades;
 		trades = getTodaysGoogleTicker(symbol);
 
-		tradeDao.insertTrades(trades);
+		tradeDao.insertTempTrades(trades);
 
 		tradeDao.disconnect();
 		symbolDao.disconnect();
@@ -74,7 +74,8 @@ public class App {
 		ChartService chart = new ChartService(output);
 		TradeDataSeries series = new TradeDataSeries();
 		for (Trade trade : trades) {
-			log.debug("trade.time: " + trade.getDateTime() + " trade.close: " + trade.getClose());
+			log.debug("trade.time: " + trade.getDateTime() + " trade.close: "
+					+ trade.getClose());
 			series.add(trade);
 		}
 		chart.addSeries(series);

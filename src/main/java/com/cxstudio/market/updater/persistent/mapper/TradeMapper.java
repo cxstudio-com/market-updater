@@ -12,4 +12,6 @@ public interface TradeMapper {
 	List<Trade> selectTrades(Symbol symbol, DataFilter filter);
 
 	void insertTrades(@Param("trades") List<Trade> trades);
+
+	void insertTempTrades(@Param("trades") List<Trade> trades);
 }
