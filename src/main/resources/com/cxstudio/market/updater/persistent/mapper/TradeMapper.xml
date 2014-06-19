@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.cxstudio.market.updater.persistent.mapper.TradeMapper">
+
+  <resultMap id="TradeMap" type="com.cxstudio.market.updater.model.Trade">
+  	<id column="trade_id" property="tradeId" jdbcType="BIGINT" />
+  	<result column="percent_change" property="percentChange" jdbcType="FLOAT" />
+  	<result column="datetime" property="dateTime" jdbcType="TIMESTAMP" /> 
+  </resultMap>
+
+
+
+  <select id="selectTrades" resultMap="TradeMap">
+    select * from trade WHERE symbol_id = #{symbol.symbolId}
+    AND datetime between #{filter.startTime} AND #{filter.endTime}
+  </select>
+  
+  <insert id="insertTrades">
+  	 INSERT INTO trade (symbol_id,
+						open,
+						close,
+						high,
+						low,
+						percent_change,
+						bid,
+						ask,
+						volume,
+						datetime
+      ) VALUES
+    <foreach collection="trades" item="trade" separator=","> 
+      (           
+         #{trade.symbol.symbolId},
+		 #{trade.open},
+		 #{trade.close},
+		 #{trade.high},
+		 #{trade.low},
+		 #{trade.percentChange},
+		 #{trade.bid},
+		 #{trade.ask},
+		 #{trade.volume},
+		 #{trade.dateTime}
+      )
+    </foreach>
+  </insert>
+</mapper>
