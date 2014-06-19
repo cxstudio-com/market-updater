@@ -25,12 +25,21 @@ public class App {
 	static Logger log = Logger.getLogger(App.class.getName());
 
 	public static void main(String[] args) throws Exception {
+		updateSymbol(1553);
+
+		// List<Trade> trades = getFileData(1553,
+		// "D:\\MyData\\GoogleDrive\\Project\\GBPUSD1d.txt");
+		// drawChart(trades);
+		log.info("done");
+	}
+
+	static void updateSymbol(int symbolId) throws Exception {
 		SymbolDao symbolDao = new SymbolDao();
 		TradeDao tradeDao = new TradeDao();
 		symbolDao.connect();
 		tradeDao.connect();
 
-		Symbol symbol = symbolDao.getSymbol(1553); // EXK
+		Symbol symbol = symbolDao.getSymbol(symbolId);
 
 		List<Trade> trades;
 		trades = getTodaysGoogleTicker(symbol);
@@ -39,13 +48,11 @@ public class App {
 
 		tradeDao.disconnect();
 		symbolDao.disconnect();
-		log.info("done");
-		// trades =
-		// getFileData("D:\\MyData\\GoogleDrive\\Project\\GBPUSD1d.txt");
-
 	}
 
-	public static List<Trade> getFileData(Symbol symbol, String fileName) {
+	public static List<Trade> getFileData(int symbolId, String fileName) throws Exception {
+		SymbolDao symbolDao = new SymbolDao();
+		Symbol symbol = symbolDao.getSymbol(symbolId);
 		DataProvider dataProvider = new FlatFileProvider(fileName);
 		DataFilter filter = new DataFilter();
 		// Symbol symbol = new Symbol("AAPL", "NASDAQ");
@@ -74,8 +81,7 @@ public class App {
 		ChartService chart = new ChartService(output);
 		TradeDataSeries series = new TradeDataSeries();
 		for (Trade trade : trades) {
-			log.debug("trade.time: " + trade.getDateTime() + " trade.close: "
-					+ trade.getClose());
+			log.debug("trade.time: " + trade.getDateTime() + " trade.close: " + trade.getClose());
 			series.add(trade);
 		}
 		chart.addSeries(series);

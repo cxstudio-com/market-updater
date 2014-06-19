@@ -16,6 +16,11 @@ public interface SymbolMapper {
 			@Result(property = "lastUpdate", column = "last_update") })
 	List<Symbol> selectAllSymbols();
 
+	@Select("SELECT * FROM symbol WHERE collectable=1")
+	@Results({ @Result(property = "symbolId", column = "symbol_id"),
+			@Result(property = "lastUpdate", column = "last_update") })
+	List<Symbol> selectFilteredSymbols();
+
 	@Select("SELECT * FROM symbol WHERE symbol_id = #{symbolId}")
 	@Results({ @Result(property = "symbolId", column = "symbol_id"),
 			@Result(property = "lastUpdate", column = "last_update") })

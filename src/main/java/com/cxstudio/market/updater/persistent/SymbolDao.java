@@ -25,8 +25,8 @@ public class SymbolDao extends AbstractDao {
 		return mapper.selectSymbolById(symbolId);
 	}
 
-	public List<Symbol> getAllSymbols() throws Exception {
-		return mapper.selectAllSymbols();
+	public List<Symbol> getAllSymbols(boolean filtered) throws Exception {
+		return mapper.selectFilteredSymbols();
 	}
 
 	public void setUpdateDate(Symbol symbol) throws Exception {
