@@ -81,6 +81,15 @@ public class GoogleFinanceDataRetreiver implements DataProvider {
 
 	}
 
+	/**
+	 * ex: http://www.google.com/finance/getprices?q=RMAX&x=NYSE&ts=-1293726&p=
+	 * 43081&i=30&f=d%2Co%2Ch%2Cl%2Cc%2Cv
+	 * 
+	 * @param symbol
+	 * @param filter
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
 	private URI buildUri(Symbol symbol, DataFilter filter) throws IllegalArgumentException {
 		URI uri = null;
 		try {
