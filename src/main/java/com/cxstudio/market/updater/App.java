@@ -25,12 +25,40 @@ public class App {
 	static Logger log = Logger.getLogger(App.class.getName());
 
 	public static void main(String[] args) throws Exception {
-		updateSymbol(3117);
+		// updateSymbol(3117);
 
 		// List<Trade> trades = getFileData(1553,
 		// "D:\\MyData\\GoogleDrive\\Project\\GBPUSD1d.txt");
 		// drawChart(trades);
+
+		List<Trade> trades = getTrades("AAPL", DataFilter.lastNumOfDays(4));
+
+		drawChart(trades);
+		log.info("Num of trades got : " + trades.size());
 		log.info("done");
+	}
+
+	static List<Trade> getTrades(String ticker, DataFilter filter) {
+		SymbolDao symbolDao = new SymbolDao();
+		TradeDao tradeDao = new TradeDao();
+		Symbol symbol;
+		List<Trade> trades = null;
+		try {
+			symbolDao.connect();
+			tradeDao.connect();
+			symbol = symbolDao.getSymbol(ticker);
+			log.info("Symbol: " + symbol);
+			trades = tradeDao.getTrades(symbol, filter);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			symbolDao.disconnect();
+			tradeDao.disconnect();
+		}
+
+		return trades;
+
 	}
 
 	static void updateSymbol(int symbolId) throws Exception {

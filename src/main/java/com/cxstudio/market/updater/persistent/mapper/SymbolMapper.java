@@ -26,6 +26,11 @@ public interface SymbolMapper {
 			@Result(property = "lastUpdate", column = "last_update") })
 	Symbol selectSymbolById(int symbolId);
 
+	@Select("SELECT * FROM symbol WHERE ticker = #{ticker}")
+	@Results({ @Result(property = "symbolId", column = "symbol_id"),
+			@Result(property = "lastUpdate", column = "last_update") })
+	Symbol selectSymbolByTicker(String ticker);
+
 	@Update("Update symbol Set last_update = #{symbol.lastUpdate} WHERE symbol_id = #{symbol.symbolId}")
 	void updateSymbol(@Param("symbol") Symbol symbol);
 

@@ -9,7 +9,7 @@ import com.cxstudio.market.updater.model.Symbol;
 import com.cxstudio.market.updater.model.Trade;
 
 public interface TradeMapper {
-	List<Trade> selectTrades(Symbol symbol, DataFilter filter);
+	List<Trade> selectTrades(@Param("symbol") Symbol symbol, @Param("filter") DataFilter filter);
 
 	void insertTrades(@Param("trades") List<Trade> trades);
 

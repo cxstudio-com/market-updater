@@ -21,6 +21,10 @@ public class SymbolDao extends AbstractDao {
 		mapper = session.getMapper(SymbolMapper.class);
 	}
 
+	public Symbol getSymbol(String ticker) throws Exception {
+		return mapper.selectSymbolByTicker(ticker);
+	}
+
 	public Symbol getSymbol(int symbolId) throws Exception {
 		return mapper.selectSymbolById(symbolId);
 	}
@@ -32,4 +36,5 @@ public class SymbolDao extends AbstractDao {
 	public void setUpdateDate(Symbol symbol) throws Exception {
 		mapper.updateSymbol(symbol);
 	}
+
 }
