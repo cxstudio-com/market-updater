@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 
 import com.cxstudio.market.charter.ChartService;
 import com.cxstudio.market.charter.SwingOutput;
-import com.cxstudio.market.charter.TradeDataSeries;
 import com.cxstudio.market.charter.TradePercentChangeSeries;
 import com.cxstudio.market.updater.dataprovider.DataProvider;
 import com.cxstudio.market.updater.dataprovider.FlatFileProvider;
@@ -32,7 +31,7 @@ public class App {
 		// "D:\\MyData\\GoogleDrive\\Project\\GBPUSD1d.txt");
 		// drawChart(trades);
 
-		List<Trade> trades = getTrades("AAPL", DataFilter.lastNumOfDays(4));
+		List<Trade> trades = getTrades("AAPL", DataFilter.lastNumOfDays(2));
 
 		drawChart(trades);
 		log.info("Num of trades got : " + trades.size());
