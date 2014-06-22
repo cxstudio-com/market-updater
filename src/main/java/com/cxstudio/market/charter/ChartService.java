@@ -10,6 +10,7 @@ import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.SegmentedTimeline;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 
 public class ChartService {
@@ -22,7 +23,7 @@ public class ChartService {
 		this.chartOutput = chartOutput;
 	}
 
-	public void addSeries(TradeDataSeries series) {
+	public void addSeries(TimeSeries series) {
 		dataset.addSeries(series);
 	}
 

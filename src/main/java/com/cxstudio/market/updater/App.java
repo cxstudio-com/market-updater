@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import com.cxstudio.market.charter.ChartService;
 import com.cxstudio.market.charter.SwingOutput;
 import com.cxstudio.market.charter.TradeDataSeries;
+import com.cxstudio.market.charter.TradePercentChangeSeries;
 import com.cxstudio.market.updater.dataprovider.DataProvider;
 import com.cxstudio.market.updater.dataprovider.FlatFileProvider;
 import com.cxstudio.market.updater.dataprovider.GoogleFinanceDataRetreiver;
@@ -107,7 +108,7 @@ public class App {
 	static void drawChart(List<Trade> trades) {
 		SwingOutput output = new SwingOutput();
 		ChartService chart = new ChartService(output);
-		TradeDataSeries series = new TradeDataSeries();
+		TradePercentChangeSeries series = new TradePercentChangeSeries();
 		for (Trade trade : trades) {
 			log.debug("trade.time: " + trade.getDateTime() + " trade.close: " + trade.getClose());
 			series.add(trade);
