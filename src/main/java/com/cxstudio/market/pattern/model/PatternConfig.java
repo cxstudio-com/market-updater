@@ -1,11 +1,10 @@
 package com.cxstudio.market.pattern.model;
 
 public class PatternConfig {
-	private int interval;
+	private int interval; // in seconds
 	private int length;
 	private int stepsToPrediction;
 	private int predictionRange;
-	private float performance;
 
 	public int getInterval() {
 		return interval;
@@ -31,20 +30,28 @@ public class PatternConfig {
 		this.stepsToPrediction = stepsToPrediction;
 	}
 
-	public float getPerformance() {
-		return performance;
-	}
-
-	public void setPerformance(float performance) {
-		this.performance = performance;
-	}
-
 	public int getPredictionRange() {
 		return predictionRange;
 	}
 
 	public void setPredictionRange(int predictionRange) {
 		this.predictionRange = predictionRange;
+	}
+
+	public int getTotalSteps() {
+		return length + stepsToPrediction + predictionRange;
+	}
+
+	public PatternConfig(int interval, int length, int stepsToPrediction, int predictionRange) {
+		super();
+		this.interval = interval;
+		this.length = length;
+		this.stepsToPrediction = stepsToPrediction;
+		this.predictionRange = predictionRange;
+	}
+
+	public static PatternConfig get30StepConfig() {
+		return new PatternConfig(60, 30, 5, 3);
 	}
 
 }

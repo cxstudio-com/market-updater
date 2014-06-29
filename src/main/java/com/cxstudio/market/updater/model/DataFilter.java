@@ -7,6 +7,7 @@ public class DataFilter {
 	private Date startTime;
 	private Date endTime;
 	private int interval;
+	private int limit;
 
 	public Date getStartTime() {
 		return startTime;
@@ -30,6 +31,14 @@ public class DataFilter {
 
 	public void setInterval(int interval) {
 		this.interval = interval;
+	}
+
+	public int getLimit() {
+		return limit;
+	}
+
+	public void setLimit(int limit) {
+		this.limit = limit;
 	}
 
 	public static DataFilter lastNumOfDays(int numOfDays) {

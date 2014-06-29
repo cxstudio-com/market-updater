@@ -11,11 +11,22 @@
   	<result column="datetime" property="dateTime" jdbcType="TIMESTAMP" /> 
   </resultMap>
 
-
-
   <select id="selectTrades" resultMap="TradeMap">
     select * from trade WHERE symbol_id = #{symbol.symbolId}
-    AND datetime between #{filter.startTime} AND #{filter.endTime}
+    <if test="filter.startTime != null">
+    	AND datetime &gt;= #{filter.startTime}
+    </if>
+    <if test="filter.endTime != null">
+    	AND datetime &lt; #{filter.endTime}
+    </if> 
+    <choose>
+	    <when test="filter.limit > 0">
+	    	Limit #{filter.limit}
+	    </when>
+	    <otherwise>
+	    	Limit 10000
+	    </otherwise>
+    </choose>
   </select>
   
   <insert id="insertTrades">
