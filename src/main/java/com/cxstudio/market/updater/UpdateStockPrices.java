@@ -76,7 +76,7 @@ public class UpdateStockPrices implements Runnable {
 				filter.setInterval(30);
 				int counter = 1;
 				for (Symbol symbol : symbolsToUpdate) {
-					if (symbol.getLastUpdate() != null && needsUpdate(symbol.getLastUpdate())) {
+					if (symbol.getLastUpdate() == null || needsUpdate(symbol.getLastUpdate())) {
 						try {
 							log.info("Updating # " + (counter++) + " of " + symbolsToUpdate.size() + ": "
 									+ symbol.getTicker());
