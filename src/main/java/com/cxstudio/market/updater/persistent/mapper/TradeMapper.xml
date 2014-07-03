@@ -19,6 +19,7 @@
     <if test="filter.endTime != null">
     	AND datetime &lt; #{filter.endTime}
     </if> 
+    ORDER BY datetime asc
     <choose>
 	    <when test="filter.limit > 0">
 	    	Limit #{filter.limit}
