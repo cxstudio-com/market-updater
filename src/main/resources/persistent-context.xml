@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+			http://www.springframework.org/schema/context
+			http://www.springframework.org/schema/context/spring-context-3.1.xsd
+	">
+
+	<context:property-placeholder location="classpath:database.properties" system-properties-mode="NEVER" />
+
+	<bean id="poolProperties" class="org.apache.tomcat.jdbc.pool.PoolProperties">
+		<property name="driverClassName" value="${marketupdater.datasource.driverClassName}"/>
+		<property name="url" value="${marketupdater.datasource.url}"/>
+		<property name="username" value="${marketupdater.datasource.username}"/>
+		<property name="password" value="${marketupdater.datasource.password}"/>
+		<property name="initialSize" value="${marketupdater.datasource.pool.initialSize}"/>
+		<property name="minIdle" value="${marketupdater.datasource.pool.minIdle}"/>
+		<property name="maxIdle" value="${marketupdater.datasource.pool.maxIdle}"/>
+		<property name="maxActive" value="${marketupdater.datasource.pool.maxActive}"/>
+		<property name="jdbcInterceptors" value="org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"/>
+		<property name="testOnBorrow" value="true"/>
+		<property name="validationQuery" value="select 1"/>
+	</bean>
+
+	<bean id="dataSource" class="org.apache.tomcat.jdbc.pool.DataSource" destroy-method="close">
+		<property name="poolProperties" ref="poolProperties"/>
+	</bean>
+
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!--
+		Always use an injected spring SqlSessionTemplate rather than a mybatis DefaultSqlSession.
+		The SqlSessionTemplate participates in spring managed transactions. The two should not be
+		mixed in the same application. A bean that extends SqlSessionDaoSupport will have a
+		SqlSessionTemplate implicitly injected into it - call this.getSqlSession() to retrieve.
+	-->
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg ref="sqlSessionFactory" />
+	</bean>
+
+	<!--
+		Automatically register the mappers in the (comma separated list of) base packages.
+		The mappers will automatically be injected with the SqlSessionTemplate.
+	-->
+	<bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.cxstudio.market.updater.persistent.mapper" />
+	</bean>
+
+
+</beans>

@@ -3,22 +3,17 @@ package com.cxstudio.market.updater.persistent;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cxstudio.market.updater.model.Symbol;
 import com.cxstudio.market.updater.persistent.mapper.SymbolMapper;
 
-public class SymbolDao extends AbstractDao {
+public class SymbolDao {
+	@Autowired
 	SymbolMapper mapper;
 	static Logger log = Logger.getLogger(SymbolDao.class.getName());
 
 	public SymbolDao() {
-		init();
-	}
-
-	@Override
-	public void connect() {
-		session = sqlSessionFactory.openSession(true);
-		mapper = session.getMapper(SymbolMapper.class);
 	}
 
 	public Symbol getSymbol(String ticker) throws Exception {

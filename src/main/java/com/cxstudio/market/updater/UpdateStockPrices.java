@@ -5,9 +5,9 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.cxstudio.market.updater.dataprovider.DataProvider;
-import com.cxstudio.market.updater.dataprovider.GoogleFinanceDataRetreiver;
 import com.cxstudio.market.updater.model.DataFilter;
 import com.cxstudio.market.updater.model.Symbol;
 import com.cxstudio.market.updater.model.Trade;
@@ -26,11 +26,10 @@ public class UpdateStockPrices implements Runnable {
 	private final Date todayMarketStart;
 	private final Date todayMarketEnd;
 
-	public static void main(String[] args) throws Exception {
-		SymbolDao symbolDao = new SymbolDao();
-		TradeDao tradeDao = new TradeDao();
-		DataProvider dataProvider = new GoogleFinanceDataRetreiver();
-		UpdateStockPrices updateStockPrices = new UpdateStockPrices(symbolDao, tradeDao, dataProvider);
+	public static void main(String[] args) {
+		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
+				"persistent-context.xml", "application-context.xml");
+		UpdateStockPrices updateStockPrices = (UpdateStockPrices) ctx.getBean("stockUpdater");
 
 		log.info("Stock update started.");
 		// could be run in multi-thread if need to
@@ -38,6 +37,7 @@ public class UpdateStockPrices implements Runnable {
 		UpdateResult result = updateStockPrices.getUpdateResult();
 
 		log.info("Stock update completed: " + result.toString());
+		ctx.close();
 
 	}
 
@@ -63,8 +63,6 @@ public class UpdateStockPrices implements Runnable {
 			return;
 		}
 		try {
-			symbolDao.connect();
-			tradeDao.connect();
 			symbolsToUpdate = symbolDao.getAllSymbols(true);
 			if (symbolsToUpdate != null) {
 				updateResult.numOfStocksToUpdate = symbolsToUpdate.size();
@@ -106,8 +104,6 @@ public class UpdateStockPrices implements Runnable {
 			updateResult.successful = false;
 			log.error("Error when updating stock prices. ", e);
 		} finally {
-			symbolDao.disconnect();
-			tradeDao.disconnect();
 		}
 		updateResult.endTime = new Date();
 	}

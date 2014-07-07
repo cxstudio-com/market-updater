@@ -44,17 +44,12 @@ public class App {
 		Symbol symbol;
 		List<Trade> trades = null;
 		try {
-			symbolDao.connect();
-			tradeDao.connect();
 			symbol = symbolDao.getSymbol(ticker);
 			log.info("Symbol: " + symbol);
 			trades = tradeDao.getTrades(symbol, filter);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} finally {
-			symbolDao.disconnect();
-			tradeDao.disconnect();
 		}
 
 		return trades;
@@ -64,8 +59,6 @@ public class App {
 	static void updateSymbol(int symbolId) throws Exception {
 		SymbolDao symbolDao = new SymbolDao();
 		TradeDao tradeDao = new TradeDao();
-		symbolDao.connect();
-		tradeDao.connect();
 
 		Symbol symbol = symbolDao.getSymbol(symbolId);
 
@@ -74,8 +67,6 @@ public class App {
 
 		tradeDao.insertTempTrades(trades);
 
-		tradeDao.disconnect();
-		symbolDao.disconnect();
 	}
 
 	public static List<Trade> getFileData(int symbolId, String fileName) throws Exception {

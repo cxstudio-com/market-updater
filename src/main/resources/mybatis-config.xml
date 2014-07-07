@@ -1,21 +1,45 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE configuration
-  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
-  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+    PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-config.dtd">
+ 
 <configuration>
-  <environments default="development">
-    <environment id="development">
-      <transactionManager type="JDBC"/>
-      <dataSource type="POOLED">
-        <property name="driver" value="com.mysql.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://192.168.1.99/stocks"/>
-        <property name="username" value="root"/>
-        <property name="password" value=""/>
-      </dataSource>
-    </environment>
-  </environments>
-  <mappers>
-  	<mapper class="com.cxstudio.market.updater.persistent.mapper.SymbolMapper" />
-    <mapper resource="com/cxstudio/market/updater/persistent/mapper/TradeMapper.xml"/>
-  </mappers>
+
+	<settings>
+		<setting name="cacheEnabled" value="false" />
+		<!--
+			Be explicit about which columns are mapped to object
+		 	properties.
+		 -->
+		<!-- <setting name="autoMappingBehavior" value="NONE" /> -->
+
+		<!-- Eagerly load all relationships in a result map. -->
+		<setting name="lazyLoadingEnabled" value="false" />
+
+		<!-- Reuse prepared statements. -->
+		<setting name="defaultExecutorType" value="REUSE" />
+	</settings>
+
+<!-- Settings Defaults -->
+<!--
+	<settings>
+		<setting name="aggressiveLazyLoading" value="true" />
+		<setting name="multipleResultSetsEnabled" value="true" />
+		<setting name="useColumnLabel" value="true" />
+		<setting name="useGeneratedKeys" value="false" />
+		<setting name="defaultStatementTimeout" value="{not set (null)}" />
+		<setting name="safeRowBoundsEnabled" value="false" />
+		<setting name="mapUnderscoreToCamelCase" value="false" />
+		<setting name="localCacheScope" value="SESSION" />
+		<setting name="jdbcTypeForNull" value="OTHER" />
+		<setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString" />
+	</settings>
+-->
+
+	<typeAliases>
+ 		<package name="com.cxstudio.market.updater.model" />
+ 		<package name="com.cxstudio.market.updater.persistent.mapper" />
+	</typeAliases>
+
+
 </configuration>
