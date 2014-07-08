@@ -54,4 +54,35 @@ public class PatternConfig {
 		return new PatternConfig(60, 30, 5, 3);
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + interval;
+		result = prime * result + length;
+		result = prime * result + predictionRange;
+		result = prime * result + stepsToPrediction;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PatternConfig other = (PatternConfig) obj;
+		if (interval != other.interval)
+			return false;
+		if (length != other.length)
+			return false;
+		if (predictionRange != other.predictionRange)
+			return false;
+		if (stepsToPrediction != other.stepsToPrediction)
+			return false;
+		return true;
+	}
+
 }

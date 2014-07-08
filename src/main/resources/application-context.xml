@@ -16,6 +16,12 @@
 		<property name="tradeDao" ref="tradeDao"/>
 	</bean>
 	
+	<bean id="patternMaker" class="com.cxstudio.market.pattern.PatternMaker">
+		<property name="symbolDao" ref="symbolDao"/>
+		<property name="tradeDao" ref="tradeDao"/>
+	</bean>
+	
+	
 	<bean id="dataProvider" class="com.cxstudio.market.updater.dataprovider.GoogleFinanceDataRetreiver"></bean>
 	
 	<bean id="stockUpdater" class="com.cxstudio.market.updater.UpdateStockPrices">

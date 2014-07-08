@@ -20,7 +20,6 @@ import com.cxstudio.market.updater.persistent.SymbolDao;
 import com.cxstudio.market.updater.persistent.TradeDao;
 
 public class PatternMakerTest implements Runnable {
-
 	static Logger log = Logger.getLogger(PatternMakerTest.class.getName());
 	SymbolDao symbolDao;
 	TradeDao tradeDao;
@@ -39,14 +38,14 @@ public class PatternMakerTest implements Runnable {
 
 	public void run() {
 		float threadshold = 20f;
-		// PatternConfig config = PatternConfig.get30StepConfig();
-		PatternConfig config = new PatternConfig(60, 30, 5, 3);
+		PatternConfig config = PatternConfig.get30StepConfig();
+		// PatternConfig config = new PatternConfig(60, 30, 5, 3);
 		int numOfPatterns = 300;
 		String ticker = "YHOO";
 		Calendar baseDate = Calendar.getInstance();
 		baseDate.set(baseDate.get(Calendar.YEAR),
 				baseDate.get(Calendar.MONTH),
-				baseDate.get(Calendar.DATE) - 4,
+				baseDate.get(Calendar.DATE) - 5,
 				9, 0);
 		SwingOutput output = new SwingOutput();
 		PatternChartService chart = new PatternChartService(output);
@@ -78,29 +77,21 @@ public class PatternMakerTest implements Runnable {
 	Trade getPredicationTrade(String ticker, Calendar baseDate, PatternConfig config) throws Exception {
 		// roll base time forward to the predication time
 		baseDate.add(Calendar.SECOND, (config.getInterval() * (config.getLength() + config.getStepsToPrediction())));
-		// symbolDao.connect();
-		// tradeDao.connect();
 		Symbol symbol = symbolDao.getSymbol(ticker);
 		DataFilter dataFilter = new DataFilter();
 		dataFilter.setStartTime(baseDate.getTime());
 		dataFilter.setLimit(1);
 		List<Trade> trades = tradeDao.getTrades(symbol, dataFilter);
-		// tradeDao.disconnect();
-		// symbolDao.disconnect();
 		return trades.get(0);
 	}
 
 	List<Trade> getTrades(String ticker, Calendar baseDate, int numOfTrades) throws Exception {
 
-		// symbolDao.connect();
-		// tradeDao.connect();
 		Symbol symbol = symbolDao.getSymbol(ticker);
 		DataFilter dataFilter = new DataFilter();
 		dataFilter.setStartTime(baseDate.getTime());
 		dataFilter.setLimit(numOfTrades);
 		List<Trade> trades = tradeDao.getTrades(symbol, dataFilter);
-		// tradeDao.disconnect();
-		// symbolDao.disconnect();
 		return trades;
 
 	}
@@ -114,12 +105,8 @@ public class PatternMakerTest implements Runnable {
 		dataFilter.setLimit(config.getTotalSteps() + numOfPatterns);
 
 		log.debug("Start time is: " + dataFilter.getStartTime());
-		// symbolDao.connect();
-		// tradeDao.connect();
 		Symbol symbol = symbolDao.getSymbol(ticker);
 		List<Trade> trades = tradeDao.getTrades(symbol, dataFilter);
-		// tradeDao.disconnect();
-		// symbolDao.disconnect();
 
 		List<Trade> patternTrades;
 		List<Pattern> patterns = new ArrayList<Pattern>(numOfPatterns);

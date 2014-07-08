@@ -41,4 +41,21 @@ public class SimplePercentMatcher {
 		}
 		return totalALike / sample.size();
 	}
+
+	public float match(Pattern patternA, Pattern patternB) {
+		PatternConfig configA = patternA.getPatternConfig();
+		PatternConfig configB = patternB.getPatternConfig();
+		if (!configA.equals(configB)) {
+			throw new IllegalArgumentException("Incompatible patterns. Unable to match.");
+		}
+
+		float totalALike = 0f;
+		List<Step> stepsA = patternA.getSteps();
+		List<Step> stepsB = patternB.getSteps();
+		for (int i = 0; i < stepsA.size(); i++) {
+			totalALike += 100 - Math.abs(CalculationUtils.percentChange(stepsA.get(i).getChange(), stepsB.get(i)
+					.getChange()));
+		}
+		return totalALike / stepsA.size();
+	}
 }
