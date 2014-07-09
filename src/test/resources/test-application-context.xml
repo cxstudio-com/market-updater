@@ -10,26 +10,11 @@
 
 	<bean id="symbolDao" class="com.cxstudio.market.updater.persistent.SymbolDao"/>
 	<bean id="tradeDao" class="com.cxstudio.market.updater.persistent.TradeDao"/>
-	<bean id="patternConfig30Step" class="com.cxstudio.market.pattern.model.PatternConfig">
-		<constructor-arg name="interval" value="60"/>
-		<constructor-arg name="length" value="30" />
-		<constructor-arg name="stepsToPrediction" value="5" />
-		<constructor-arg name="predictionRange" value="2" />
-	</bean>
+	<bean id="patternConfig30Step" class="com.cxstudio.market.pattern.model.PatternConfig" factory-method="get30StepConfig"/>
 	
-	<bean id="patternRunner" class="com.cxstudio.market.pattern.PatternRunner">
-		<constructor-arg name="patternConfig" ref="patternConfig30Step" />
-		<constructor-arg name="threashold" value="75.0" />
-		<constructor-arg name="minHitCount" value="10" />
-	</bean>
-	
-	
-	<bean id="dataProvider" class="com.cxstudio.market.updater.dataprovider.GoogleFinanceDataRetreiver"></bean>
-	
-	<bean id="stockUpdater" class="com.cxstudio.market.updater.UpdateStockPrices">
-		<constructor-arg name="symbolDao" ref="symbolDao"/>
-		<constructor-arg name="tradeDao" ref="tradeDao"/>
-		<constructor-arg name="dataProvider" ref="dataProvider"/>
+	<bean id="patternMakerTest" class="com.cxstudio.market.pattern.PatternMakerTest">
+		<property name="symbolDao" ref="symbolDao"/>
+		<property name="tradeDao" ref="tradeDao"/>
 	</bean>
 
 
