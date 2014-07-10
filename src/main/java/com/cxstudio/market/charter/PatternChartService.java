@@ -10,7 +10,10 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.ui.HorizontalAlignment;
+import org.jfree.ui.RectangleEdge;
 
 import com.cxstudio.market.pattern.model.Pattern;
 import com.cxstudio.market.pattern.model.PatternConfig;
@@ -22,6 +25,8 @@ public class PatternChartService {
 	private ChartOutput chartOutput;
 	private XYSeriesCollection dataset;
 	private XYLineAndShapeRenderer renderer;
+	private String title;
+	private String subtitle;
 
 	public PatternChartService(ChartOutput chartOutput) {
 		this.chartOutput = chartOutput;
@@ -74,9 +79,21 @@ public class PatternChartService {
 		renderer.setSeriesPaint(dataset.indexOf(series), new Color(230, 20, 70));
 	}
 
+	public void addAveragePerformance(float performance, PatternConfig config) {
+		PatternStepSeries series = new PatternStepSeries();
+		Step step = new Step();
+		step.setChange(performance);
+		step.setIndex(config.getLength() + config.getStepsToPrediction());
+		series.add(step);
+
+		dataset.addSeries(series);
+		renderer.setSeriesStroke(dataset.indexOf(series), new BasicStroke(5));
+		renderer.setSeriesPaint(dataset.indexOf(series), new Color(230, 20, 70));
+	}
+
 	public void drawChart() {
 		final JFreeChart chart = ChartFactory.createXYLineChart(
-				"Pattern Chart", // chart title
+				this.title == null ? "Pattern Chart" : this.title,
 				"Step", // x axis label
 				"Percent Change", // y axis label
 				dataset, // data
@@ -85,36 +102,34 @@ public class PatternChartService {
 				true, // tooltips
 				false // urls
 				);
+		if (this.subtitle != null) {
+			TextTitle legendText = new TextTitle(this.subtitle);
+			legendText.setPosition(RectangleEdge.BOTTOM);
+			legendText.setTextAlignment(HorizontalAlignment.RIGHT);
+			legendText.setMaximumLinesToDisplay(10);
+			chart.addSubtitle(legendText);
+		}
 
 		XYPlot xyplot = chart.getXYPlot();
 		xyplot.setRenderer(renderer);
 
-		/*
-		 * // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
-		 * chart.setBackgroundPaint(Color.white);
-		 * 
-		 * // final StandardLegend legend = (StandardLegend) chart.getLegend();
-		 * // legend.setDisplaySeriesShapes(true);
-		 * 
-		 * // get a reference to the plot for further customisation... final
-		 * XYPlot plot = chart.getXYPlot();
-		 * plot.setBackgroundPaint(Color.lightGray); // plot.setAxisOffset(new
-		 * Spacer(Spacer.ABSOLUTE, 5.0, 5.0, 5.0, 5.0));
-		 * plot.setDomainGridlinePaint(Color.white);
-		 * plot.setRangeGridlinePaint(Color.white);
-		 * 
-		 * final XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-		 * renderer.setSeriesLinesVisible(0, false);
-		 * renderer.setSeriesShapesVisible(1, false);
-		 * plot.setRenderer(renderer);
-		 * 
-		 * // change the auto tick unit selection to integer units only... final
-		 * NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-		 * rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-		 * // OPTIONAL CUSTOMISATION COMPLETED.
-		 */
+		chartOutput.outputChart(chart, 800, 600);
+	}
 
-		chartOutput.outputChart(chart, 800, 500);
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getSubtitle() {
+		return subtitle;
+	}
+
+	public void setSubtitle(String subtitle) {
+		this.subtitle = subtitle;
 	}
 
 }

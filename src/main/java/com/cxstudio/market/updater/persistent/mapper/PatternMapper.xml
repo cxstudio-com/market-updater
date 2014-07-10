@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.cxstudio.market.updater.persistent.mapper.TradeMapper">
+
+	<resultMap id="ParentResult" type="com.cxstudio.market.updater.model.CandidatePattern">
+	    <result property="patternId" column="pattern_id" />
+	    <result property="confidence" column="confidence" />
+	    <result property="average_performance" column="averagePerformance" />
+	    <collection property="steps" javaType="List" ofType="Step" resultMap="StepResult" />
+	</resultMap>
+	
+	<resultMap id="StepResult" type="com.cxstudio.market.updater.model.Step">
+	    <result property="change" column="change" />
+	    <result property="index" column="index" />
+	    <result property="time" column="date_time" />
+	</resultMap>
+	
+	<select id="selectPatterns" resultMap="PatternResult">
+	    SELECT p.pattern_id, p.confidence, p.performance as average_performance, p.trend,
+	    s.change, s.index, s.date_time
+	    FROM pattern p INNER JOIN pattern_step s ON s.pattern_id = p.pattern_id
+	</select>
+	
+	<insert id="insertPatterns" parameterType="CandidatePattern" useGeneratedKeys="true" keyProperty="pattern.patternId" keyColumn="pattern_id">>
+  	 INSERT INTO pattern (confidence,
+						performance,
+						trend
+      ) VALUES (           
+         #{pattern.confidence},
+		 #{pattern.averagePerformance},
+		 #{pattern.trend}
+      )
+  	</insert>
+  	
+  	<insert id="insertSteps">
+  	 INSERT INTO pattern_step (pattern_id,
+						change,
+						index,
+						date_time
+      ) VALUES
+    <foreach collection="steps" item="step" separator=","> 
+      (           
+         #{patternId},
+		 #{step.change},
+		 #{step.index},
+		 #{step.time}
+      )
+    </foreach>
+  </insert>
+  	
+</mapper>

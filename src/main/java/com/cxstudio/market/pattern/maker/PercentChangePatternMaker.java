@@ -30,6 +30,7 @@ public class PercentChangePatternMaker {
 		}
 		int baseIdex = patternConfig.getLength() - 1;
 		Trade baseTrade = trades.get(baseIdex);
+		pattern.setBaseTrade(baseTrade);
 		// calculate and set pattern steps
 		List<Step> steps = new ArrayList<Step>(patternConfig.getLength());
 		for (int i = 0; i < patternConfig.getLength(); i++) {

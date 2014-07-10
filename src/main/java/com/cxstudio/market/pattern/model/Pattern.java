@@ -2,10 +2,13 @@ package com.cxstudio.market.pattern.model;
 
 import java.util.List;
 
+import com.cxstudio.market.updater.model.Trade;
+
 public class Pattern {
 	private PatternConfig patternConfig;
 	private float performance;
 	private List<Step> steps;
+	private Trade baseTrade;
 
 	public Pattern(PatternConfig patternConfig) {
 		this.patternConfig = patternConfig;
@@ -35,10 +38,19 @@ public class Pattern {
 		this.steps = steps;
 	}
 
+	public Trade getBaseTrade() {
+		return baseTrade;
+	}
+
+	public void setBaseTrade(Trade baseTrade) {
+		this.baseTrade = baseTrade;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((baseTrade == null) ? 0 : baseTrade.hashCode());
 		result = prime * result + ((patternConfig == null) ? 0 : patternConfig.hashCode());
 		result = prime * result + Float.floatToIntBits(performance);
 		result = prime * result + ((steps == null) ? 0 : steps.hashCode());
@@ -54,6 +66,11 @@ public class Pattern {
 		if (getClass() != obj.getClass())
 			return false;
 		Pattern other = (Pattern) obj;
+		if (baseTrade == null) {
+			if (other.baseTrade != null)
+				return false;
+		} else if (!baseTrade.equals(other.baseTrade))
+			return false;
 		if (patternConfig == null) {
 			if (other.patternConfig != null)
 				return false;

@@ -17,10 +17,18 @@
 		<constructor-arg name="predictionRange" value="2" />
 	</bean>
 	
+	<bean id="qualifier" class="com.cxstudio.market.pattern.PatternRunner.PatternQualifier">
+		<property name="simularityThreashold" value="75.0"/>
+		<property name="minHitCount" value="10" />
+		<property name="confidenceThreashold" value="20.0"/>
+		<property name="trendThreashold" value="50"/>
+		<property name="performanceThreashold" value="0.1"/>
+	</bean>
+	
 	<bean id="patternRunner" class="com.cxstudio.market.pattern.PatternRunner">
 		<constructor-arg name="patternConfig" ref="patternConfig30Step" />
-		<constructor-arg name="threashold" value="75.0" />
-		<constructor-arg name="minHitCount" value="10" />
+		<constructor-arg name="qualifier" ref="qualifier"/>
+		<constructor-arg name="imageOutputFolder" value="/tmp/patterns" />
 	</bean>
 	
 	
