@@ -13,10 +13,14 @@ public class CandidatePattern extends Pattern {
 	private List<Pattern> votingPatterns;
 	private float trend;
 
+	public CandidatePattern() {
+	}
+
 	public CandidatePattern(Pattern basePattern) {
 		super(basePattern.getPatternConfig());
 		this.setPerformance(basePattern.getPerformance());
 		this.setSteps(basePattern.getSteps());
+		this.setBaseTrade(basePattern.getBaseTrade());
 		this.votingPatterns = new ArrayList<Pattern>();
 	}
 

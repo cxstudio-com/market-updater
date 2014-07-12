@@ -9,13 +9,17 @@
 	<context:component-scan base-package="com.cxstudio.market" />
 
 	<bean id="symbolDao" class="com.cxstudio.market.updater.persistent.SymbolDao"/>
-	<bean id="tradeDao" class="com.cxstudio.market.updater.persistent.TradeDao"/>
+	<bean id="tradeDao" class="com.cxstudio.market.updater.persistent.TradeDao"/>	
+	<bean id="patternDao" class="com.cxstudio.market.updater.persistent.PatternDao"/>
+	
 	<bean id="patternConfig30Step" class="com.cxstudio.market.pattern.model.PatternConfig">
 		<constructor-arg name="interval" value="60"/>
 		<constructor-arg name="length" value="30" />
 		<constructor-arg name="stepsToPrediction" value="5" />
 		<constructor-arg name="predictionRange" value="2" />
 	</bean>
+	
+	<bean id="runnerHelper" class="com.cxstudio.market.pattern.PatternRunnerHelper"/>
 	
 	<bean id="qualifier" class="com.cxstudio.market.pattern.PatternRunner.PatternQualifier">
 		<property name="simularityThreashold" value="75.0"/>

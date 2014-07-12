@@ -16,19 +16,19 @@ public class SymbolDao {
 	public SymbolDao() {
 	}
 
-	public Symbol getSymbol(String ticker) throws Exception {
+	public Symbol getSymbol(String ticker) {
 		return mapper.selectSymbolByTicker(ticker);
 	}
 
-	public Symbol getSymbol(int symbolId) throws Exception {
+	public Symbol getSymbol(int symbolId) {
 		return mapper.selectSymbolById(symbolId);
 	}
 
-	public List<Symbol> getAllSymbols(boolean filtered) throws Exception {
+	public List<Symbol> getAllSymbols(boolean filtered) {
 		return mapper.selectFilteredSymbols();
 	}
 
-	public void setUpdateDate(Symbol symbol) throws Exception {
+	public void setUpdateDate(Symbol symbol) {
 		mapper.updateSymbol(symbol);
 	}
 

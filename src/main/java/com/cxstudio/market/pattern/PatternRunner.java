@@ -19,19 +19,14 @@ import com.cxstudio.market.pattern.model.PatternConfig;
 import com.cxstudio.market.updater.model.DataFilter;
 import com.cxstudio.market.updater.model.Symbol;
 import com.cxstudio.market.updater.model.Trade;
-import com.cxstudio.market.updater.persistent.SymbolDao;
-import com.cxstudio.market.updater.persistent.TradeDao;
 import com.cxstudio.market.util.CalculationUtils;
 import com.cxstudio.market.util.FormatUtils;
 
 public class PatternRunner implements Runnable {
 	static Logger log = Logger.getLogger(PatternRunner.class.getName());
 	@Autowired
-	private SymbolDao symbolDao;
-	@Autowired
-	private TradeDao tradeDao;
-	private Symbol symbol;
-	private List<Trade> tradePool;
+	private PatternRunnerHelper helper;
+	private String ticker;
 	private PatternConfig patternConfig;
 	private PatternQualifier qualifier;
 	private String imageOutputFolder;
@@ -40,14 +35,12 @@ public class PatternRunner implements Runnable {
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
 				"persistent-context.xml", "application-context.xml");
 		PatternRunner runner = (PatternRunner) ctx.getBean("patternRunner");
-		SymbolDao symbolDao = (SymbolDao) ctx.getBean("symbolDao");
-		TradeDao tradeDao = (TradeDao) ctx.getBean("tradeDao");
-
-		Symbol symbol;
-		symbol = symbolDao.getSymbol("TSLA");
-		runner.setSymbol(symbol);
-		runner.setTradePool(tradeDao.getTrades(symbol, new DataFilter()));
+		runner.setTicker("TSLA");
 		runner.run();
+
+		PatternRunner runner1 = (PatternRunner) ctx.getBean("patternRunner");
+		runner1.setTicker("GOOG");
+		runner1.run();
 
 		// ctx.close();
 	}
@@ -60,8 +53,10 @@ public class PatternRunner implements Runnable {
 	}
 
 	public void run() {
-		tradePool = tradeDao.getTrades(symbol, new DataFilter());
-		log.info("Running pattern detector on \"" + symbol.getTicker() + "\" with " + tradePool.size() + " trades.");
+		log.info("Running pattern detector on \"" + ticker + ".");
+
+		Symbol symbol = this.helper.getSymbol(this.ticker);
+		List<Trade> tradePool = this.helper.getTrades(symbol, new DataFilter());
 
 		List<Pattern> rawPatterns;
 		try {
@@ -114,6 +109,8 @@ public class PatternRunner implements Runnable {
 					&& candidate.getConfidence() > this.qualifier.confidenceThreashold
 					&& candidate.getAveragePerformance() > this.qualifier.performanceThreashold
 					&& candidate.getTrend() > this.qualifier.trendThreashold) {
+				this.helper.insertPattern(candidate);
+
 				PngOutput output = new PngOutput(getPngFile(candidate));
 				PatternChartService chart = new PatternChartService(output);
 
@@ -156,20 +153,12 @@ public class PatternRunner implements Runnable {
 		return patterns;
 	}
 
-	public Symbol getSymbol() {
-		return symbol;
+	public String getTicker() {
+		return ticker;
 	}
 
-	public void setSymbol(Symbol symbol) {
-		this.symbol = symbol;
-	}
-
-	public List<Trade> getTradePool() {
-		return tradePool;
-	}
-
-	public void setTradePool(List<Trade> tradePool) {
-		this.tradePool = tradePool;
+	public void setTicker(String ticker) {
+		this.ticker = ticker;
 	}
 
 	public static class PatternQualifier {

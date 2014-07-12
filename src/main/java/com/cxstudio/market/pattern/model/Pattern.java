@@ -10,6 +10,10 @@ public class Pattern {
 	private List<Step> steps;
 	private Trade baseTrade;
 
+	public Pattern() {
+
+	}
+
 	public Pattern(PatternConfig patternConfig) {
 		this.patternConfig = patternConfig;
 	}

@@ -54,6 +54,10 @@ public class PatternConfig {
 		return new PatternConfig(60, 30, 5, 3);
 	}
 
+	public String getSerialized() {
+		return interval + "," + length + "," + stepsToPrediction + "," + predictionRange;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
