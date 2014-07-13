@@ -37,8 +37,6 @@ public class UpdateStockPrices implements Runnable {
 		UpdateResult result = updateStockPrices.getUpdateResult();
 
 		log.info("Stock update completed: " + result.toString());
-		ctx.close();
-
 	}
 
 	public UpdateStockPrices(SymbolDao symbolDao, TradeDao tradeDao, DataProvider dataProvider) {
