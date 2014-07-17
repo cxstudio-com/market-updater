@@ -86,7 +86,7 @@ public class UpdateStockPrices implements Runnable {
 							}
 							log.info(trades.size() + " num of trades retreived for: " + symbol.getTicker());
 						} catch (Exception e) {
-							log.error("Problem inserting trades for " + symbol.getTicker() + " into DB.");
+							log.error("Problem inserting trades for " + symbol.getTicker() + " into DB.", e);
 							updateResult.exception = e;
 							updateResult.successful = false;
 						}
