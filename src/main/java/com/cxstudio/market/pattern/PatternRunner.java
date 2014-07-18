@@ -4,6 +4,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,22 +29,42 @@ public class PatternRunner implements Runnable {
 	static Logger log = Logger.getLogger(PatternRunner.class.getName());
 	@Autowired
 	private PatternRunnerHelper helper;
-	private String ticker;
+	private Symbol symbol;
 	private PatternConfig patternConfig;
 	private PatternQualifier qualifier;
 	private String imageOutputFolder;
+	private String runnerId;
+	int patternGenerated;
 
 	public static void main(String[] args) throws Exception {
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
 				"persistent-context.xml", "application-context.xml");
-		PatternRunner runner = (PatternRunner) ctx.getBean("patternRunner");
-		runner.setTicker("TSLA");
-		runner.run();
 
-		PatternRunner runner1 = (PatternRunner) ctx.getBean("patternRunner");
-		runner1.setTicker("GOOG");
-		runner1.run();
+		PatternRunnerHelper helper = (PatternRunnerHelper) ctx.getBean("runnerHelper");
+		List<Symbol> symbols = helper.getRunnableSymbols();
+		// Running pattern runner in a thread pool
+		@SuppressWarnings("unchecked")
+		Map<String, String> prop = (Map<String, String>) ctx.getBean("marketUpdateProperties");
+		int threadPoolSize = Integer.parseInt(prop.get("PatternRunner.threadPoolSize"));
+		String runnerId = PatternRunnerHelper.getRunnerId();
 
+		ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
+		int counter = 0;
+		long startTime = System.currentTimeMillis();
+		for (Symbol symbol : symbols) {
+			log.info("Starting new thread for: " + symbol.getTicker() + " " + counter + " of " + symbols.size());
+			PatternRunner runner = (PatternRunner) ctx.getBean("patternRunner");
+			runner.setRunnerId(runnerId);
+			runner.setSymbol(symbol);
+			executor.execute(runner);
+			counter++;
+		}
+		executor.shutdown();
+		while (!executor.isTerminated()) {
+		}
+
+		long secondsUsed = (System.currentTimeMillis() - startTime) / 1000;
+		log.info("Finished all threads. " + secondsUsed + " seconds.");
 		// ctx.close();
 	}
 
@@ -53,11 +76,11 @@ public class PatternRunner implements Runnable {
 	}
 
 	public void run() {
-		log.info("Running pattern detector on \"" + ticker + ".");
-
-		Symbol symbol = this.helper.getSymbol(this.ticker);
+		log.info("Thread [" + Thread.currentThread().getId() + "] is running pattern detector on \""
+				+ this.symbol.getTicker() + "\".");
+		long startTime = System.currentTimeMillis();
 		List<Trade> tradePool = this.helper.getTrades(symbol, new DataFilter());
-
+		// make raw patterns
 		List<Pattern> rawPatterns;
 		try {
 			rawPatterns = makePatterns(tradePool, patternConfig);
@@ -65,15 +88,15 @@ public class PatternRunner implements Runnable {
 			log.error("Unable to make raw patterns from trades.");
 			return;
 		}
-
 		if (rawPatterns == null || rawPatterns.size() == 0) {
 			log.warn("No raw patterns made from trades. Finish!");
 			return;
 		}
+
 		log.debug("Start processing " + rawPatterns.size() + " raw patterns...");
 		SimplePercentMatcher matcher = new SimplePercentMatcher();
 		Hashtable<Pattern, CandidatePattern> scoreMap = new Hashtable<Pattern, CandidatePattern>();
-
+		// Match each raw pattern against every other raw pattern
 		Pattern patternA, patternB;
 		for (int i = 0; i < rawPatterns.size(); i++) {
 			for (int j = i + 1; j < rawPatterns.size(); j++) {
@@ -92,7 +115,8 @@ public class PatternRunner implements Runnable {
 				}
 			}
 		}
-
+		// Qualifying pattern matching results. Only good patterns get saved
+		// into DB
 		for (Pattern basePattern : scoreMap.keySet()) {
 			CandidatePattern candidate = scoreMap.get(basePattern);
 			float averagePerformance = CalculationUtils.averagePerformance(candidate.getVotingPatterns());
@@ -102,18 +126,19 @@ public class PatternRunner implements Runnable {
 			candidate.setAveragePerformance(averagePerformance);
 			candidate.setConfidence(confidence);
 			candidate.setTrend(trend);
-			// for test
-			candidate.setPatternId(System.currentTimeMillis());
 
+			// Qualifying candidate patterns
 			if (candidate.getVotingPatterns().size() >= this.qualifier.minHitCount
 					&& candidate.getConfidence() > this.qualifier.confidenceThreashold
 					&& candidate.getAveragePerformance() > this.qualifier.performanceThreashold
 					&& candidate.getTrend() > this.qualifier.trendThreashold) {
+				// Qualified candidate pattern will be inserted to DB, and ID
+				// will be set on the object
 				this.helper.insertPattern(candidate);
 
+				// Also output a graph for each qualified candidate pattern.
 				PngOutput output = new PngOutput(getPngFile(candidate));
 				PatternChartService chart = new PatternChartService(output);
-
 				chart.setTitle("Pattern " + candidate.getPatternId());
 				chart.addPattern(basePattern);
 				chart.addAveragePerformance(candidate.getAveragePerformance(), candidate.getPatternConfig());
@@ -130,13 +155,20 @@ public class PatternRunner implements Runnable {
 				log.debug("Outputing pattern [" + candidate.getPatternId() + "]:"
 						+ FormatUtils.formatPatternSpec(candidate));
 				chart.drawChart();
+				patternGenerated++;
 			}
 		}
-		log.info("Pattern runner complete.");
+		long secondsUsed = (System.currentTimeMillis() - startTime) / 1000;
+		log.info("Pattern detector completed on " + symbol.getTicker() + ". " + patternGenerated
+				+ " patterns generated." + secondsUsed + " seconds.");
 	}
 
 	private File getPngFile(CandidatePattern candidate) {
-		String fileName = this.imageOutputFolder + File.separator + candidate.getPatternId() + ".png";
+		File folder = new File(this.imageOutputFolder + File.separator + this.runnerId);
+		if (!folder.exists()) {
+			folder.mkdirs();
+		}
+		String fileName = folder.getAbsolutePath() + File.separator + candidate.getPatternId() + ".png";
 		return new File(fileName);
 	}
 
@@ -153,12 +185,20 @@ public class PatternRunner implements Runnable {
 		return patterns;
 	}
 
-	public String getTicker() {
-		return ticker;
+	public Symbol getSymbol() {
+		return symbol;
 	}
 
-	public void setTicker(String ticker) {
-		this.ticker = ticker;
+	public void setSymbol(Symbol symbol) {
+		this.symbol = symbol;
+	}
+
+	public String getRunnerId() {
+		return runnerId;
+	}
+
+	public void setRunnerId(String runnerId) {
+		this.runnerId = runnerId;
 	}
 
 	public static class PatternQualifier {

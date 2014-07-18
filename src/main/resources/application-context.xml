@@ -6,6 +6,8 @@
 	xmlns:task="http://www.springframework.org/schema/task"
 	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.2.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.2.xsd">
 
+	<context:property-placeholder location="classpath:updater.properties" order="1" ignore-unresolvable="true" system-properties-mode="NEVER" />
+	
 	<context:component-scan base-package="com.cxstudio.market" />
 
 	<bean id="symbolDao" class="com.cxstudio.market.updater.persistent.SymbolDao"/>
@@ -19,20 +21,28 @@
 		<constructor-arg name="predictionRange" value="2" />
 	</bean>
 	
+	<bean id="marketUpdateProperties" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="PatternRunner.threadPoolSize" value="${PatternRunner.threadPoolSize}" />				
+			</map>
+		</constructor-arg>
+	</bean>
+	
 	<bean id="runnerHelper" class="com.cxstudio.market.pattern.PatternRunnerHelper"/>
 	
 	<bean id="qualifier" class="com.cxstudio.market.pattern.PatternRunner.PatternQualifier">
-		<property name="simularityThreashold" value="75.0"/>
-		<property name="minHitCount" value="10" />
-		<property name="confidenceThreashold" value="20.0"/>
-		<property name="trendThreashold" value="50"/>
-		<property name="performanceThreashold" value="0.1"/>
+		<property name="simularityThreashold" value="${PatternQualifier.simularityThreashold}"/>
+		<property name="minHitCount" value="${PatternQualifier.minHitCount}" />
+		<property name="confidenceThreashold" value="${PatternQualifier.confidenceThreashold}"/>
+		<property name="trendThreashold" value="${PatternQualifier.trendThreashold}"/>
+		<property name="performanceThreashold" value="${PatternQualifier.performanceThreashold}"/>
 	</bean>
 	
-	<bean id="patternRunner" class="com.cxstudio.market.pattern.PatternRunner">
+	<bean id="patternRunner" class="com.cxstudio.market.pattern.PatternRunner" scope="prototype">
 		<constructor-arg name="patternConfig" ref="patternConfig30Step" />
 		<constructor-arg name="qualifier" ref="qualifier"/>
-		<constructor-arg name="imageOutputFolder" value="/tmp/patterns" />
+		<constructor-arg name="imageOutputFolder" value="${PatternRunner.imageOutputFolder}" />
 	</bean>
 	
 	
