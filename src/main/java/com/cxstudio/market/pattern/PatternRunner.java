@@ -34,6 +34,7 @@ public class PatternRunner implements Runnable {
 	private PatternQualifier qualifier;
 	private String imageOutputFolder;
 	private String runnerId;
+	private String msg;
 	int patternGenerated;
 
 	public static void main(String[] args) throws Exception {
@@ -52,10 +53,11 @@ public class PatternRunner implements Runnable {
 		int counter = 0;
 		long startTime = System.currentTimeMillis();
 		for (Symbol symbol : symbols) {
-			log.info("Starting new thread for: " + symbol.getTicker() + " " + counter + " of " + symbols.size());
 			PatternRunner runner = (PatternRunner) ctx.getBean("patternRunner");
 			runner.setRunnerId(runnerId);
 			runner.setSymbol(symbol);
+			runner.setMessage("Starting new thread for: " + symbol.getTicker() + " " + counter + " of "
+					+ symbols.size());
 			executor.execute(runner);
 			counter++;
 		}
@@ -76,8 +78,7 @@ public class PatternRunner implements Runnable {
 	}
 
 	public void run() {
-		log.info("Thread [" + Thread.currentThread().getId() + "] is running pattern detector on \""
-				+ this.symbol.getTicker() + "\".");
+		log.info("Thread [" + Thread.currentThread().getId() + "] " + this.msg);
 		long startTime = System.currentTimeMillis();
 		List<Trade> tradePool = this.helper.getTrades(symbol, new DataFilter());
 		// make raw patterns
@@ -199,6 +200,10 @@ public class PatternRunner implements Runnable {
 
 	public void setRunnerId(String runnerId) {
 		this.runnerId = runnerId;
+	}
+
+	public void setMessage(String msg) {
+		this.msg = msg;
 	}
 
 	public static class PatternQualifier {

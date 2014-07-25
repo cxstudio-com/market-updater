@@ -97,17 +97,16 @@ public class GoogleFinanceDataRetreiver implements DataProvider {
 			builder.setScheme("http").setHost("www.google.com").setPath("/finance/getprices");
 			builder.setParameter("q", symbol.getTicker());
 			builder.setParameter("x", fixExchangeCode(symbol.getExchange()));
-			int startTime = (int) (filter.getStartTime() != null ? filter.getStartTime().getTime() : System
-					.currentTimeMillis()) / 1000;
-			int endTime = (int) (filter.getEndTime() != null ? filter.getEndTime().getTime() : System
-					.currentTimeMillis()) / 1000;
-			endTime = endTime / 1000;
+			long startTime = filter.getStartTime() != null ? filter.getStartTime().getTime() : System
+					.currentTimeMillis();
+			long endTime = filter.getEndTime() != null ? filter.getEndTime().getTime() : System
+					.currentTimeMillis();
 			int interval = filter.getInterval() > 0 ? filter.getInterval() : 60;
-			int periods = (endTime - startTime) / interval;
-			periods = (periods >= 1) ? periods : 1;
-			builder.addParameter("ts", String.valueOf(startTime));
+			long periods = (endTime - startTime) / 1000 / 60 / 60 / 24;
 
-			builder.addParameter("p", String.valueOf(periods));
+			periods = (periods > 1) ? periods : 1;
+			builder.addParameter("ts", String.valueOf(endTime));
+			builder.addParameter("p", periods + "d");
 			builder.addParameter("i", String.valueOf(interval));
 			builder.addParameter("f", "d,o,h,l,c,v");
 			uri = builder.build();

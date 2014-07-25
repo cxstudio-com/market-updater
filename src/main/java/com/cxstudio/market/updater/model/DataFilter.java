@@ -50,4 +50,10 @@ public class DataFilter {
 		return newFilter;
 	}
 
+	@Override
+	public String toString() {
+		return "DataFilter [startTime=" + startTime + ", endTime=" + endTime + ", interval=" + interval + ", limit="
+				+ limit + "]";
+	}
+
 }

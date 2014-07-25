@@ -15,8 +15,12 @@ public class GoogleFinanceDataParser implements LineDataParser {
 		this.context = new Context(symbol);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.cxstudio.market.updater.dataprovider.LineDataParser#parse(java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.cxstudio.market.updater.dataprovider.LineDataParser#parse(java.lang
+	 * .String)
 	 */
 	public Trade parse(String textline) {
 		return parse(textline, -1);
@@ -45,25 +49,26 @@ public class GoogleFinanceDataParser implements LineDataParser {
 		case 6: // TIMEZONE_OFFSET
 			context.timezoneOffset = Integer.parseInt(values[1]) * 1000;
 			break;
-		case 7: // first line of the actual data. ex:
-				// "a1401975000,646.21,646.31,646.01,646.2,82798"
-			dataAry = textline.split(",");
-			String initDateStr = dataAry[0].substring(1);
-			context.initialDate = Long.parseLong(initDateStr) * 1000;
-			// fall through ...
 		default: // rest of the lines
-			trade = new Trade(context.symbol);
-			int timeOffset = 0;
-			if (dataAry == null) { // after first line of data
-				dataAry = textline.split(",");
-				timeOffset = context.interval * Integer.parseInt(dataAry[0]) * 1000;
+			dataAry = textline.split(",");
+			if (dataAry.length > 0) {
+				int timeOffset = 0;
+				if (dataAry[0].startsWith("a")) {
+					// first line of the actual data. ex:
+					// "a1401975000,646.21,646.31,646.01,646.2,82798"
+					String initDateStr = dataAry[0].substring(1);
+					context.initialDate = Long.parseLong(initDateStr) * 1000;
+				} else {
+					timeOffset = context.interval * Integer.parseInt(dataAry[0]) * 1000;
+				}
+				trade = new Trade(context.symbol);
+				trade.setDateTime(new Date(context.initialDate + context.timezoneOffset + timeOffset));
+				trade.setClose(Float.parseFloat(dataAry[1]));
+				trade.setHigh(Float.parseFloat(dataAry[2]));
+				trade.setLow(Float.parseFloat(dataAry[3]));
+				trade.setOpen(Float.parseFloat(dataAry[4]));
+				trade.setVolume(Long.parseLong(dataAry[5]));
 			}
-			trade.setDateTime(new Date(context.initialDate + context.timezoneOffset + timeOffset));
-			trade.setClose(Float.parseFloat(dataAry[1]));
-			trade.setHigh(Float.parseFloat(dataAry[2]));
-			trade.setLow(Float.parseFloat(dataAry[3]));
-			trade.setOpen(Float.parseFloat(dataAry[4]));
-			trade.setVolume(Long.parseLong(dataAry[5]));
 		}
 
 		// log.debug("Parsing line [" + context.lineNumber + "]: " + textline);

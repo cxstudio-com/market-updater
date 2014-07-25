@@ -69,7 +69,8 @@ public class UpdateStockPrices implements Runnable {
 				Calendar cal = Calendar.getInstance();
 				cal.roll(Calendar.HOUR, -24);
 				filter.setStartTime(cal.getTime());
-				filter.setInterval(30);
+				filter.setInterval(60);
+				filter.setEndTime(new Date());
 				int counter = 1;
 				for (Symbol symbol : symbolsToUpdate) {
 					if (symbol.getLastUpdate() == null || needsUpdate(symbol.getLastUpdate())) {
