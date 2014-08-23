@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.cxstudio.market.pattern.model.CandidatePattern;
+import com.cxstudio.market.pattern.model.PatternQualifier;
 import com.cxstudio.market.updater.model.DataFilter;
 import com.cxstudio.market.updater.model.Symbol;
 import com.cxstudio.market.updater.model.Trade;
@@ -48,6 +49,10 @@ public class PatternRunnerHelper {
 
 	public static synchronized String getRunnerId() {
 		return folderFormatter.format(new Date()) + Integer.toHexString(random.nextInt());
+	}
+
+	public List<CandidatePattern> getModelPattners(PatternQualifier qualifier) {
+		return patternDao.getModelPatterns(qualifier);
 	}
 
 }

@@ -22,6 +22,17 @@
 	    SELECT p.pattern_id, p.confidence, p.performance as average_performance, p.trend,
 	    s.change, s.index, s.date_time
 	    FROM pattern p INNER JOIN pattern_step s ON s.pattern_id = p.pattern_id
+	    WHERE 1
+	    <if test="qualifier.confidenceThreashold > 0">
+	    	AND p.confidence > #{qualifier.confidenceThreashold}
+	    </if>
+	    <if test="qualifier.performanceThreashold > 0">
+	    	AND p.performance > #{qualifier.performanceThreashold}
+	    </if>
+	    <if test="qualifier.trendThreashold > 0">
+	    	AND p.trend > #{qualifier.trendThreashold}
+	    </if>
+	     
 	</select>
 	
 	<insert id="insertPattern" parameterType="com.cxstudio.market.pattern.model.CandidatePattern" useGeneratedKeys="true" keyProperty="pattern.patternId" keyColumn="pattern_id">

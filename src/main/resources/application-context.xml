@@ -31,7 +31,7 @@
 	
 	<bean id="runnerHelper" class="com.cxstudio.market.pattern.PatternRunnerHelper"/>
 	
-	<bean id="qualifier" class="com.cxstudio.market.pattern.PatternRunner.PatternQualifier">
+	<bean id="qualifier" class="com.cxstudio.market.pattern.model.PatternQualifier">
 		<property name="simularityThreashold" value="${PatternQualifier.simularityThreashold}"/>
 		<property name="minHitCount" value="${PatternQualifier.minHitCount}" />
 		<property name="confidenceThreashold" value="${PatternQualifier.confidenceThreashold}"/>
@@ -48,11 +48,14 @@
 	
 	<bean id="dataProvider" class="com.cxstudio.market.updater.dataprovider.GoogleFinanceDataRetreiver"></bean>
 	
+	<bean id="mockDataProvider" class="com.cxstudio.market.updater.dataprovider.GoogleFinanceDataRetreiver">
+		<constructor-arg name="googleUrl" value="http://localhost:8080/updater/quote/getprices" />
+	</bean>
+	
 	<bean id="stockUpdater" class="com.cxstudio.market.updater.UpdateStockPrices">
 		<constructor-arg name="symbolDao" ref="symbolDao"/>
 		<constructor-arg name="tradeDao" ref="tradeDao"/>
 		<constructor-arg name="dataProvider" ref="dataProvider"/>
 	</bean>
 	
-
 </beans>

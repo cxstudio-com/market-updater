@@ -24,6 +24,14 @@ import com.cxstudio.market.updater.model.Trade;
 
 public class GoogleFinanceDataRetreiver implements DataProvider {
 	static Logger log = Logger.getLogger(GoogleFinanceDataRetreiver.class);
+	private String googleUrl = "http://www.google.com/finance/getprices";
+
+	public GoogleFinanceDataRetreiver() {
+	}
+
+	public GoogleFinanceDataRetreiver(String googleUrl) {
+		this.googleUrl = googleUrl;
+	}
 
 	@Override
 	public void connect() {
@@ -93,14 +101,14 @@ public class GoogleFinanceDataRetreiver implements DataProvider {
 	private URI buildUri(Symbol symbol, DataFilter filter) throws IllegalArgumentException {
 		URI uri = null;
 		try {
-			URIBuilder builder = new URIBuilder();
-			builder.setScheme("http").setHost("www.google.com").setPath("/finance/getprices");
+			URIBuilder builder = new URIBuilder(this.googleUrl);
+			// builder.setScheme("http").setHost("www.google.com").setPath("/finance/getprices");
 			builder.setParameter("q", symbol.getTicker());
 			builder.setParameter("x", fixExchangeCode(symbol.getExchange()));
-			long startTime = filter.getStartTime() != null ? filter.getStartTime().getTime() : System
-					.currentTimeMillis();
-			long endTime = filter.getEndTime() != null ? filter.getEndTime().getTime() : System
-					.currentTimeMillis();
+			long startTime = filter.getStartTime() != null ?
+					filter.getStartTime().getTime() : System.currentTimeMillis();
+			long endTime = filter.getEndTime() != null ?
+					filter.getEndTime().getTime() : System.currentTimeMillis();
 			int interval = filter.getInterval() > 0 ? filter.getInterval() : 60;
 			long periods = (endTime - startTime) / 1000 / 60 / 60 / 24;
 

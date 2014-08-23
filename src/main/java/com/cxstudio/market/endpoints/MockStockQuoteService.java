@@ -1,6 +1,7 @@
 package com.cxstudio.market.endpoints;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.cxstudio.market.updater.model.DataFilter;
 import com.cxstudio.market.updater.model.Symbol;
@@ -43,4 +46,31 @@ public class MockStockQuoteService {
 		filter.setEndTime(yesterday.getTime());
 		return tradeDao.getTrades(symbol, filter);
 	}
+
+	// http://www.google.com/finance/getprices?q=RMAX&x=NYSE&ts=-1293726&p=43081&i=30&f=d%2Co%2Ch%2Cl%2Cc%2Cv
+	@RequestMapping(value = "getprices", method = RequestMethod.GET)
+	public ModelAndView getSymbol(@RequestParam("q") String ticker, @RequestParam("x") String market,
+			@RequestParam("i") int interval,
+			@RequestParam("ts") long ts) {
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("trades");
+		DataFilter filter = new DataFilter();
+		filter.setEndTime(new Date(ts * 1000));
+		filter.setLimit(1);
+		filter.setOrder("desc");
+		Symbol symbol = symbolDao.getSymbol(ticker);
+		List<Trade> trades = tradeDao.getTrades(symbol, filter);
+		if (trades != null) {
+			Trade trade = trades.get(0);
+			mv.addObject("time", trade.getDateTime().getTime() / 1000);
+			mv.addObject("close", trade.getClose());
+			mv.addObject("high", trade.getHigh());
+			mv.addObject("low", trade.getLow());
+			mv.addObject("open", trade.getOpen());
+			mv.addObject("volume", trade.getVolume());
+		}
+		return mv;
+
+	}
+
 }

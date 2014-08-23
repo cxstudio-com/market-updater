@@ -19,6 +19,7 @@ import com.cxstudio.market.pattern.matcher.SimplePercentMatcher;
 import com.cxstudio.market.pattern.model.CandidatePattern;
 import com.cxstudio.market.pattern.model.Pattern;
 import com.cxstudio.market.pattern.model.PatternConfig;
+import com.cxstudio.market.pattern.model.PatternQualifier;
 import com.cxstudio.market.updater.model.DataFilter;
 import com.cxstudio.market.updater.model.Symbol;
 import com.cxstudio.market.updater.model.Trade;
@@ -104,7 +105,7 @@ public class PatternRunner implements Runnable {
 				patternA = rawPatterns.get(i);
 				patternB = rawPatterns.get(j);
 				float result = matcher.match(patternA, patternB);
-				if (result > this.qualifier.simularityThreashold) {
+				if (result > this.qualifier.getSimularityThreashold()) {
 					CandidatePattern candidatePattern = scoreMap.containsKey(patternA) ? scoreMap.get(patternA)
 							: new CandidatePattern(patternA);
 					candidatePattern.getVotingPatterns().add(patternB);
@@ -129,10 +130,10 @@ public class PatternRunner implements Runnable {
 			candidate.setTrend(trend);
 
 			// Qualifying candidate patterns
-			if (candidate.getVotingPatterns().size() >= this.qualifier.minHitCount
-					&& candidate.getConfidence() > this.qualifier.confidenceThreashold
-					&& candidate.getAveragePerformance() > this.qualifier.performanceThreashold
-					&& candidate.getTrend() > this.qualifier.trendThreashold) {
+			if (candidate.getVotingPatterns().size() >= this.qualifier.getMinHitCount()
+					&& candidate.getConfidence() > this.qualifier.getConfidenceThreashold()
+					&& candidate.getAveragePerformance() > this.qualifier.getPerformanceThreashold()
+					&& candidate.getTrend() > this.qualifier.getTrendThreashold()) {
 				// Qualified candidate pattern will be inserted to DB, and ID
 				// will be set on the object
 				this.helper.insertPattern(candidate);
@@ -204,35 +205,6 @@ public class PatternRunner implements Runnable {
 
 	public void setMessage(String msg) {
 		this.msg = msg;
-	}
-
-	public static class PatternQualifier {
-		float simularityThreashold;
-		int minHitCount;
-		float confidenceThreashold;
-		float trendThreashold;
-		float performanceThreashold;
-
-		public void setSimularityThreashold(float simularityThreashold) {
-			this.simularityThreashold = simularityThreashold;
-		}
-
-		public void setMinHitCount(int minHitCount) {
-			this.minHitCount = minHitCount;
-		}
-
-		public void setConfidenceThreashold(float confidenceThreashold) {
-			this.confidenceThreashold = confidenceThreashold;
-		}
-
-		public void setTrendThreashold(float trendThreashold) {
-			this.trendThreashold = trendThreashold;
-		}
-
-		public void setPerformanceThreashold(float performanceThreashold) {
-			this.performanceThreashold = performanceThreashold;
-		}
-
 	}
 
 }
