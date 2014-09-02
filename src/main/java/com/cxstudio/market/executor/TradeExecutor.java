@@ -28,6 +28,7 @@ public class TradeExecutor extends TimerTask {
 	private DataProvider dataProvider;
 	private SimplePercentMatcher patternMatcher;
 	private List<CandidatePattern> modelPatterns;
+	private static Timer mainTimer;
 
 	public static void main(String[] args) throws Exception {
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
@@ -43,10 +44,9 @@ public class TradeExecutor extends TimerTask {
 		qualifier.setSimularityThreashold(0.75F);
 		List<CandidatePattern> modelPatterns = helper.getModelPattners(qualifier);
 
-		Timer timer = new Timer();
+		mainTimer = new Timer();
 		TradeExecutor executor = new TradeExecutor(symbol, config, dataProvider, patternMatcher, modelPatterns);
-		timer.scheduleAtFixedRate(executor, 0, 60 * 2);
-		timer.
+		mainTimer.scheduleAtFixedRate(executor, 0, 60 * 2);
 	}
 
 	public TradeExecutor(Symbol symbol, PatternConfig patternConfig, DataProvider dataProvider,
@@ -91,6 +91,7 @@ public class TradeExecutor extends TimerTask {
 					log.info("Running trades are " + (likelihood * 100) + "% like.");
 					log.info(">>>>>>>>>> Current trade : " + currentTrade);
 					log.info(">>>>>>>>>> Prediction: " + currentTrade.getClose() * (1 + pattern.getPerformance()));
+					mainTimer.cancel();
 					return;
 				}
 			}
