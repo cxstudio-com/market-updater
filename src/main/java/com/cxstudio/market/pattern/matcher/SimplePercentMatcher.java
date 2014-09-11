@@ -34,10 +34,10 @@ public class SimplePercentMatcher {
 			Trade trade = sample.get(i);
 			Step step = steps.get(i);
 			float sampleChange = CalculationUtils.percentChange(baseTrade.getClose(), trade.getClose());
-			// log.debug("Percent difference in step: "
-			// + (100 - Math.abs(CalculationUtils.percentChange(sampleChange,
-			// step.getChange()))));
-			totalALike += 100 - Math.abs(CalculationUtils.percentChange(sampleChange, step.getChange()));
+			float percentChange = Math.abs(CalculationUtils.percentChange(sampleChange, step.getChange()));
+			log.trace("Percent difference in step " + i + " " + sampleChange + " <> " + step.getChange() + ": "
+					+ (100 - percentChange));
+			totalALike += 100 - (percentChange > 100 ? 100 : percentChange);
 		}
 		return totalALike / sample.size();
 	}
@@ -52,10 +52,21 @@ public class SimplePercentMatcher {
 		float totalALike = 0f;
 		List<Step> stepsA = patternA.getSteps();
 		List<Step> stepsB = patternB.getSteps();
+		float percentChange = 0f;
 		for (int i = 0; i < stepsA.size(); i++) {
-			totalALike += 100 - Math.abs(CalculationUtils.percentChange(stepsA.get(i).getChange(), stepsB.get(i)
+			percentChange = Math.abs(CalculationUtils.percentChange(stepsA.get(i).getChange(), stepsB.get(i)
 					.getChange()));
+			log.trace("Percent differences in step "
+					+ i
+					+ " "
+					+ stepsA.get(i).getChange()
+					+ " <> "
+					+ stepsB.get(i).getChange()
+					+ ": "
+					+ (100 - (percentChange > 100 ? 100 : percentChange)));
+			totalALike += 100 - (percentChange > 100 ? 100 : percentChange);
+			log.trace("totalAlike: " + totalALike + " steps: " + stepsA.size());
 		}
-		return totalALike / stepsA.size();
+		return (totalALike / stepsA.size());
 	}
 }

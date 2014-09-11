@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.cxstudio.market.pattern.PatternRunnerHelper;
+import com.cxstudio.market.pattern.maker.PercentChangePatternMaker;
 import com.cxstudio.market.pattern.matcher.SimplePercentMatcher;
 import com.cxstudio.market.pattern.model.CandidatePattern;
 import com.cxstudio.market.pattern.model.Pattern;
@@ -34,7 +35,7 @@ public class TradeExecutor extends TimerTask {
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
 				"persistent-context.xml", "application-context.xml");
 		PatternRunnerHelper helper = (PatternRunnerHelper) ctx.getBean("runnerHelper");
-		Symbol symbol = helper.getSymbol("YHOO");
+		Symbol symbol = helper.getSymbol("GOOG");
 		PatternConfig config = (PatternConfig) ctx.getBean("patternConfig30Step");
 		DataProvider dataProvider = (DataProvider) ctx.getBean("mockDataProvider");
 		SimplePercentMatcher patternMatcher = new SimplePercentMatcher();
@@ -84,18 +85,22 @@ public class TradeExecutor extends TimerTask {
 		float likelihood = 0F;
 		if (runningTrades.size() == patternConfig.getLength()) {
 			log.debug("Accumalated enough trades to run pattern matching");
+			PercentChangePatternMaker patternMaker = new PercentChangePatternMaker(this.patternConfig);
+			Pattern currentPattern = patternMaker.make(runningTrades);
 			for (Pattern pattern : this.modelPatterns) {
 				pattern.setPatternConfig(this.patternConfig);
-				likelihood = patternMatcher.match(runningTrades, pattern);
-				if (likelihood > 0.7) {
-					log.info("Running trades are " + (likelihood * 100) + "% like.");
+				likelihood = patternMatcher.match(currentPattern, pattern);
+				log.trace("Matching against patter: " + pattern);
+				if (likelihood > 70.f) {
+					log.info("Running trades are " + (likelihood) + "% like.");
 					log.info(">>>>>>>>>> Current trade : " + currentTrade);
 					log.info(">>>>>>>>>> Prediction: " + currentTrade.getClose() * (1 + pattern.getPerformance()));
 					mainTimer.cancel();
 					return;
 				}
 			}
-
+			log.debug("Trade with Base trade: " + runningTrades.getLast()
+					+ " matched against model patterns. No match found");
 		}
 
 	}

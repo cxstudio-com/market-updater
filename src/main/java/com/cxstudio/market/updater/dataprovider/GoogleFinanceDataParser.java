@@ -71,7 +71,7 @@ public class GoogleFinanceDataParser implements LineDataParser {
 			}
 		}
 
-		// log.debug("Parsing line [" + context.lineNumber + "]: " + textline);
+		log.trace("Parsing line [" + context.lineNumber + "]: " + textline);
 		log.trace("result: " + (trade == null ? "null" : trade.toString()));
 		return trade;
 	}

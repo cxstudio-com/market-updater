@@ -26,6 +26,7 @@ public class MockStockQuoteService {
 	SymbolDao symbolDao;
 	@Autowired
 	TradeDao tradeDao;
+	static int mockProceeder = 0;
 
 	@RequestMapping(value = "{symbolId}", method = RequestMethod.GET)
 	public @ResponseBody
@@ -56,12 +57,12 @@ public class MockStockQuoteService {
 		mv.setViewName("trades");
 		DataFilter filter = new DataFilter();
 		filter.setEndTime(new Date(ts * 1000));
-		filter.setLimit(1);
+		filter.setLimit(1000);
 		filter.setOrder("desc");
 		Symbol symbol = symbolDao.getSymbol(ticker);
 		List<Trade> trades = tradeDao.getTrades(symbol, filter);
 		if (trades != null) {
-			Trade trade = trades.get(0);
+			Trade trade = trades.get(mockProceeder++);
 			mv.addObject("time", trade.getDateTime().getTime() / 1000);
 			mv.addObject("close", trade.getClose());
 			mv.addObject("high", trade.getHigh());

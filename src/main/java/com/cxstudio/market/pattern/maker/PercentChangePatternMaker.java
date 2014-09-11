@@ -23,9 +23,10 @@ public class PercentChangePatternMaker {
 	public Pattern make(List<Trade> trades) {
 		int totalLength = patternConfig.getTotalSteps();
 		Pattern pattern = new Pattern(patternConfig);
-		// sanity check
-		if (trades.size() != totalLength) {
-			throw new IllegalArgumentException("Expected trade length: " + totalLength + ". Actual length: "
+		// sanity check, if number of trades = patternConfig.getLength(): trades
+		// only have base trades, without performance data
+		if (trades.size() != totalLength && trades.size() != patternConfig.getLength()) {
+			throw new IllegalArgumentException("Expected # of trades: " + totalLength + ". Actual trades: "
 					+ trades.size());
 		}
 		int baseIdex = patternConfig.getLength() - 1;
@@ -34,16 +35,23 @@ public class PercentChangePatternMaker {
 		// calculate and set pattern steps
 		List<Step> steps = new ArrayList<Step>(patternConfig.getLength());
 		for (int i = 0; i < patternConfig.getLength(); i++) {
+			log.trace("Calculating percent change on base " + baseTrade.getClose() + " trade# " + i + ":"
+					+ trades.get(i).getClose()
+					+ " change: " + CalculationUtils.percentChange(baseTrade.getClose(), trades.get(i).getClose()));
 			steps.add(new Step(CalculationUtils.percentChange(baseTrade.getClose(),
 					trades.get(i).getClose()), i, trades.get(i).getDateTime()));
 		}
 		pattern.setSteps(steps);
-		// calculate outcome from outcome range trade
-		float outcomeSum = 0f;
-		for (int i = totalLength - patternConfig.getPredictionRange() - 1; i < totalLength; i++) {
-			outcomeSum += CalculationUtils.percentChange(baseTrade.getClose(), trades.get(i).getClose());
+
+		if (trades.size() == totalLength) {
+			// calculate outcome from outcome range trade
+			float outcomeSum = 0f;
+			for (int i = totalLength - patternConfig.getPredictionRange() - 1; i < totalLength; i++) {
+				outcomeSum += CalculationUtils.percentChange(baseTrade.getClose(), trades.get(i).getClose());
+			}
+			pattern.setPerformance(outcomeSum / (float) patternConfig.getPredictionRange());
 		}
-		pattern.setPerformance(outcomeSum / (float) patternConfig.getPredictionRange());
+
 		return pattern;
 	}
 
