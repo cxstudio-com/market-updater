@@ -12,5 +12,6 @@ CREATE TABLE `trade` (
   `volume` int(11) DEFAULT NULL,
   PRIMARY KEY (`trade_id`),
   UNIQUE KEY `idx_trade_datetime_symbol_id` (`datetime`,`symbol_id`),
-  KEY `idx_trade_datetime` (`datetime`)
+  KEY `idx_trade_datetime` (`datetime`),
+  KEY `idx_symbol_id` (`symbol_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=939890 DEFAULT CHARSET=utf8;

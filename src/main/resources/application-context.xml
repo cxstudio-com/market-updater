@@ -58,4 +58,9 @@
 		<constructor-arg name="dataProvider" ref="dataProvider"/>
 	</bean>
 	
+	<bean id="csvDataImporter" class="com.cxstudio.market.util.CsvDataImporter">
+		<constructor-arg name="symbolDao" ref="symbolDao"/>
+		<constructor-arg name="tradeDao" ref="tradeDao"/>
+	</bean>
+	
 </beans>
