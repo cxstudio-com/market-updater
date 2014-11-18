@@ -25,6 +25,7 @@ public class CsvDataImporter {
 	private final SymbolDao symbolDao;
 	private final TradeDao tradeDao;
 	static Logger log = Logger.getLogger(CsvDataImporter.class.getName());
+	private final int BATCH_SIZE = 2000;
 
 	public static void main(String[] args) throws Exception {
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
@@ -56,8 +57,15 @@ public class CsvDataImporter {
 				}
 				try {
 					log.info("Inserting " + trades.size() + " into database.");
-					tradeDao.insertTrades(trades);
-					file.renameTo(new File(file.getName() + ".done"));
+					System.out.print("Inserting to db: ");
+					for (int i = 0; i < trades.size(); i += BATCH_SIZE) {
+						int tail = (i + BATCH_SIZE) > trades.size() ? trades.size() : i + BATCH_SIZE;
+						System.out.print(".");
+						tradeDao.insertTrades(trades.subList(i, tail - 1));
+					}
+					String newFileName = file.getAbsolutePath() + ".done";
+					file.renameTo(new File(newFileName));
+					log.info("Complete processing file " + file.getName() + ". Renamed to " + newFileName);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

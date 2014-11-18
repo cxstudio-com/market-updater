@@ -1,2 +1,1 @@
-java -cp "target/updater-1.0.1-SNAPSHOT/WEB-INF/lib/*;target/updater-1.0.1-SNAPSHOT/WEB-INF/;config;target/updater-1.0.1
--SNAPSHOT/WEB-INF/classes" com.cxstudio.market.util.CsvDataImporter %1
+java -cp "target/updater-1.0.1-SNAPSHOT/WEB-INF/lib/*;target/updater-1.0.1-SNAPSHOT/WEB-INF/;config_csv;target/updater-1.0.1-SNAPSHOT/WEB-INF/classes" com.cxstudio.market.util.CsvDataImporter %1
