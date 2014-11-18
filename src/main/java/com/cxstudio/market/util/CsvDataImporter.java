@@ -56,8 +56,8 @@ public class CsvDataImporter {
 				}
 				try {
 					log.info("Inserting " + trades.size() + " into database.");
-					// tradeDao.insertTrades(trades);
-					// file.renameTo(new File(file.getName() + ".done"));
+					tradeDao.insertTrades(trades);
+					file.renameTo(new File(file.getName() + ".done"));
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
